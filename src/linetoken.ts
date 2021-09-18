@@ -12,7 +12,7 @@ export enum Symbol {
     try = "try",
     except = "except",
     with = "with",
-    indent = "INDENT", // indent token, default if not EOF, only contains indent information
+    indent = "INDENT", // Indent token, default if not EOF, only contains indent information
     eof = "EOF"
 }
 

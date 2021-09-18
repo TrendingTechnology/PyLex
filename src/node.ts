@@ -8,7 +8,7 @@ export class LexNodeProvider implements vscode.TreeDataProvider<Node> {
     readonly onDidChangeTreeData: vscode.Event<Node | undefined | void> = this._onDidChangeTreeData.event;
 
     private parser: Parser;
-    private document: Node; // all top-level constructs (indent 0) will be children of this object
+    private document: Node; // All top-level constructs (indent 0) will be children of this object
 
     constructor (private text?: string) {
         if (this.text === undefined ) {
@@ -78,19 +78,19 @@ export class Node extends vscode.TreeItem {
     }
 
     // Get this Node's children
-    public children(): Node[] | undefined {
+    children(): Node[] | undefined {
         return this._children;
     }
 
     // Return whether or not this child has any children.
-    public hasChildren(): boolean {
+    hasChildren(): boolean {
         return this._children !== undefined && this._children.length > 0;
     }
 
     // Adopt one or more child nodes
-    public adopt(child: Node): void;
-    public adopt(child: Node[]): void;
-    public adopt(child: any): void {
+    adopt(child: Node): void;
+    adopt(child: Node[]): void;
+    adopt(child: any): void {
         // Are there any other children?
         if (this._children === undefined) {
             // No....
@@ -116,7 +116,7 @@ export class Node extends vscode.TreeItem {
     //
     //     node = node.prune()
     //
-    public prune(): Node {
+    prune(): Node {
         if (this.hasChildren()) {
             // Internal node
             for (var [index, _] of this._children!.entries()) {

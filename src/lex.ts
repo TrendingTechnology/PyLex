@@ -48,8 +48,7 @@ var rules: {pattern: RegExp, type: Symbol}[] = [
 ];
 
 export class Lexer {
-    /* FIXME: private after done */
-    private textLines: string[] = []; /* array of text lines */
+    private textLines: string[] = []; // array of text lines
     private pos: number = 0;
     private _currToken: LineToken = EOFTOKEN;
 
@@ -57,27 +56,27 @@ export class Lexer {
         this.restart(text);
     }
 
-    /* restart lexer with new text */
+    // Restart lexer with new text
     restart(text: string | undefined): void {
         this.textLines = [];
         this.pos = 0;
         this._currToken = EOFTOKEN;
         if (text !== undefined) {
-            /* Try carriage return AND linefeed (CRLF, Windows) */
+            // Try carriage return AND linefeed (CRLF, Windows)
             this.textLines = text.split('\r\n');
             if (this.textLines.length !== 1) {
                 this.next();
-                return; /* done */
+                return;
             }
 
-            /* Try ONLY linefeed (LF, Unix) */
+            // Try ONLY linefeed (LF, Unix)
             this.textLines = text?.split('\n');
             if (this.textLines.length !== 1) {
                 this.next();
-                return; /* done */
+                return;
             }
 
-            /* Try ONLY carriage return (CF, other) */
+            // Try ONLY carriage return (CF, other)
             this.textLines = text?.split('\r');
             this.next();
         }

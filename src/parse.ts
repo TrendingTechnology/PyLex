@@ -5,14 +5,14 @@ import { Node } from './node';
 
 export class Parser {
     private lexer: Lexer;
-    private root: Node; /* Root of syntax tree */
-    
+    private root: Node; // Root of syntax tree
+
     constructor (text: string | undefined) {
         this.lexer = new Lexer(text);
         this.root = new Node("root", vscode.TreeItemCollapsibleState.None);
     }
-    
-    // public facing _parse, always starts from the bottom
+
+    // Public facing _parse, always starts from the bottom
     parse(): Node[] {
         this.root.adopt(this._parse());
         if (this.root.children() === undefined) {
@@ -22,8 +22,8 @@ export class Parser {
         return this.root.children()!;
     }
 
-    // returns the next indented block
-    // as a tree of significant tokens 
+    // Returns the next indented block
+    // as a tree of significant tokens
     private _parse(indentLevel: number = 0): Node[] {
         let ret: Node[] = [];
 
