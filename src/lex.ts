@@ -64,14 +64,14 @@ export class Lexer {
         if (text !== undefined) {
             // Try carriage return AND linefeed (CRLF, Windows)
             this.textLines = text.split('\r\n');
-            if (this.textLines.length !== 1) {
+            if (this.textLines.length > 1) {
                 this.next();
                 return;
             }
 
             // Try ONLY linefeed (LF, Unix)
             this.textLines = text?.split('\n');
-            if (this.textLines.length !== 1) {
+            if (this.textLines.length > 1) {
                 this.next();
                 return;
             }
