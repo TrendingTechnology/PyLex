@@ -28,7 +28,6 @@ export class Parser {
         let ret: Node[] = [];
 
         let token: LineToken = this.lexer.currToken();
-        let first = true;
         while (token !== EOFTOKEN) {
             if (token.indentLevel < indentLevel) {
                 // 2 because after returning token will be advanced again
