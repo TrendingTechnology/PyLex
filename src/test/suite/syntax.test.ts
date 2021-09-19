@@ -3,10 +3,10 @@ import * as vscode from 'vscode';
 import { after } from 'mocha';
 
 import { Parser } from '../../parse';
-import { Node } from '../../node';
+import { LexNode } from '../../lexNode';
 import { LineToken, Symbol } from '../../linetoken';
 
-var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
+var tests: { name: string, input: string[], output: LexNode[] | undefined }[] = [
   {
     name: 'No Input',
     input: [ ],
@@ -23,7 +23,7 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
     name: 'Single line with construct',
     input: [ 'for x of y:' ],
     output: [
-      new Node('for x of y',
+      new LexNode('for x of y',
                vscode.TreeItemCollapsibleState.None,
                new LineToken(Symbol.for, 0, 0, 'x of y'))
     ]
@@ -46,7 +46,7 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       'billy = "Scrubbly Bubbles!"'
     ],
     output: [
-      new Node('if radioshack',
+      new LexNode('if radioshack',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.if, 0, 0, 'radioshack'))
     ]
@@ -60,7 +60,7 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '    print radioshack.hours'
     ],
     output: [
-      new Node('if radioshack',
+      new LexNode('if radioshack',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.if, 1, 0, 'radioshack'))
     ]
@@ -77,13 +77,13 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '    print("You really eat this?")',
     ],
     output: [
-      new Node('if yummy',
+      new LexNode('if yummy',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.if, 0, 0, 'yummy')),
-      new Node('elif just_ok',
+      new LexNode('elif just_ok',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.elif, 2, 0, 'just_ok')),
-      new Node('else',
+      new LexNode('else',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.else, 4, 0)),
     ]
@@ -97,11 +97,11 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '        exclaim("Scrumdiddlyumptious!")'
     ],
     output: [
-      new Node('if yummy',
+      new LexNode('if yummy',
         vscode.TreeItemCollapsibleState.Collapsed,
         new LineToken(Symbol.if, 0, 0, 'yummy'),
         [
-          new Node('if in_my_tummy',
+          new LexNode('if in_my_tummy',
             vscode.TreeItemCollapsibleState.None,
             new LineToken(Symbol.if, 1, 1, 'in_my_tummy'))
         ]
@@ -119,16 +119,16 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '    exclaim("DAESGUSTEN~)"'
     ],
     output: [
-      new Node('if yummy',
+      new LexNode('if yummy',
         vscode.TreeItemCollapsibleState.Collapsed,
         new LineToken(Symbol.if, 0, 0, 'yummy'),
         [
-          new Node('if in_my_tummy',
+          new LexNode('if in_my_tummy',
             vscode.TreeItemCollapsibleState.None,
             new LineToken(Symbol.if, 1, 1, 'in_my_tummy'))
         ]
       ),
-        new Node('else',
+        new LexNode('else',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.else, 3, 0),
       )
@@ -146,22 +146,22 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '    print("Food is food...")'
     ],
     output: [
-      new Node('if yummy',
+      new LexNode('if yummy',
         vscode.TreeItemCollapsibleState.Collapsed,
         new LineToken(Symbol.if, 0, 0, 'yummy'),
         [
-          new Node('if in_my_tummy',
+          new LexNode('if in_my_tummy',
             vscode.TreeItemCollapsibleState.Collapsed,
             new LineToken(Symbol.if, 1, 1, 'in_my_tummy'),
             [
-              new Node('if looks_like_a_mummy',
+              new LexNode('if looks_like_a_mummy',
                 vscode.TreeItemCollapsibleState.None,
                 new LineToken(Symbol.if, 2, 2, 'looks_like_a_mummy'))
             ]
           )
         ]
       ),
-        new Node('else',
+        new LexNode('else',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.else, 4, 0),
       )
@@ -183,28 +183,28 @@ var tests: { name: string, input: string[], output: Node[] | undefined }[] = [
       '    print("Food is food...")'
     ],
     output: [
-      new Node('if yummy',
+      new LexNode('if yummy',
         vscode.TreeItemCollapsibleState.Collapsed,
         new LineToken(Symbol.if, 0, 0, 'yummy'),
         [
-          new Node('if in_my_tummy',
+          new LexNode('if in_my_tummy',
             vscode.TreeItemCollapsibleState.Collapsed,
             new LineToken(Symbol.if, 1, 1, 'in_my_tummy'),
             [
-              new Node('if looks_like_a_mummy',
+              new LexNode('if looks_like_a_mummy',
                 vscode.TreeItemCollapsibleState.None,
                 new LineToken(Symbol.if, 2, 2, 'looks_like_a_mummy')),
-              new Node('else',
+              new LexNode('else',
                 vscode.TreeItemCollapsibleState.None,
                 new LineToken(Symbol.else, 4, 2))
             ]
           ),
-          new Node('elif in_my_mouth',
+          new LexNode('elif in_my_mouth',
             vscode.TreeItemCollapsibleState.None,
             new LineToken(Symbol.elif, 6, 1, 'in_my_mouth'))
         ]
       ),
-        new Node('else',
+        new LexNode('else',
         vscode.TreeItemCollapsibleState.None,
         new LineToken(Symbol.else, 8, 0),
       )
@@ -220,7 +220,7 @@ suite('Parser Test Suite', () => {
   for (var t of tests) {
     let currTest = t; // without this, all test calls get the last test
     test(currTest.name, () => {
-      let result: Node[] = new Parser(currTest.input.join('\n')).parse();
+      let result: LexNode[] = new Parser(currTest.input.join('\n')).parse();
       assert.deepStrictEqual(result, currTest.output);
     });
   }

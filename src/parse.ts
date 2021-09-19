@@ -1,19 +1,19 @@
 import * as vscode from 'vscode';
 import { EOFTOKEN, LineToken, Symbol } from './linetoken';
 import { Lexer } from './lex';
-import { Node } from './node';
+import { LexNode } from './lexNode';
 
 export class Parser {
   private lexer: Lexer;
-  private root: Node; // Root of syntax tree
+  private root: LexNode; // Root of syntax tree
 
   constructor (text?: string, tabFmt?: {size?: number, hard?: boolean}) {
     this.lexer = new Lexer(text, tabFmt);
-    this.root = new Node("root", vscode.TreeItemCollapsibleState.None);
+    this.root = new LexNode("root", vscode.TreeItemCollapsibleState.None);
   }
 
   // Public facing _parse, always starts from the bottom
-  parse(): Node[] {
+  parse(): LexNode[] {
     this.root.adopt(this._parse());
     if (this.root.children() === undefined) {
       return [];
@@ -24,8 +24,8 @@ export class Parser {
 
   // Returns the next indented block
   // as a tree of significant tokens
-  private _parse(indentLevel: number = 0): Node[] {
-    let ret: Node[] = [];
+  private _parse(indentLevel: number = 0): LexNode[] {
+    let ret: LexNode[] = [];
 
     let token: LineToken = this.lexer.currToken();
     while (token !== EOFTOKEN) {
@@ -37,7 +37,7 @@ export class Parser {
 
       if (token.type !== Symbol.indent) {
         // parse new block
-        let blockRoot: Node = new Node(token.type + (token.attr === undefined ? "" : " " + token.attr), vscode.TreeItemCollapsibleState.Collapsed, token);
+        let blockRoot: LexNode = new LexNode(token.type + (token.attr === undefined ? "" : " " + token.attr), vscode.TreeItemCollapsibleState.Collapsed, token);
         token = this.lexer.next();
         blockRoot.adopt(this._parse(indentLevel+1)); // recursively parse all descendants
         ret.push(blockRoot);

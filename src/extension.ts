@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { LexNodeProvider } from './node';
+import { LexNodeProvider } from './lexNodeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
 
