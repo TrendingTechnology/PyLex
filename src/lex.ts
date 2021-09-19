@@ -42,6 +42,10 @@ var rules: {pattern: RegExp, type: Symbol}[] = [
     type: Symbol.except
   },
   {
+    pattern: /^\s*finally:\s*$/,
+    type: Symbol.finally
+  },
+  {
     pattern: /^\s*with\s(?<attr>[^:]+):\s*$/,
     type: Symbol.with
   },
@@ -133,7 +137,7 @@ export class Lexer {
   // Calculates indentation level for
   // a line. rounds up (so, 5 spaces is
   // 2 levels, 9 is 3, etc.)
-  private getIndent(text: string, tabstop: number) {
+  getIndent(text: string, tabstop: number) {
     let indent: number = 0;
     while (text.startsWith(' '.repeat(tabstop * (indent+1)))) {
       indent++;
@@ -141,7 +145,7 @@ export class Lexer {
 
     // Might miss incomplete tab (<4 space characters),
     // be nice and don't break, even though you're wrong >:(
-    if (text[tabstop * indent + 1] === ' ') {
+    if (text[tabstop * indent]  === ' ') {
       indent++;
     }
 

@@ -9,6 +9,7 @@ export enum Symbol {
   while = "while",
   try = "try",
   except = "except",
+  finally = "finally",
   with = "with",
   indent = "INDENT", // Indent token, default if not EOF, only contains indent information
   eof = "EOF"
