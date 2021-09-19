@@ -9,7 +9,7 @@ export class LexNode extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly token?: LineToken,
     private _children?: LexNode[] | undefined,
-    private _parent?: LexNode | undefined
+    private _parent?: LexNode | undefined | null
   ) {
     super(label, collapsibleState);
     this.tooltip = this.label;
@@ -21,6 +21,11 @@ export class LexNode extends vscode.TreeItem {
   // Get this LexNode's children
   children(): LexNode[] | undefined {
     return this._children;
+  }
+
+  // Get this LexNode's parent
+  parent(): LexNode | undefined | null {
+    return this._parent;
   }
 
   // Return whether or not this child has any children.
@@ -64,10 +69,10 @@ export class LexNode extends vscode.TreeItem {
         // Prune each child
         this._children![index] = this._children![index].prune();
       }
-      return new LexNode(this.label, vscode.TreeItemCollapsibleState.Collapsed, this.token, this._children!);
+      return new LexNode(this.label, vscode.TreeItemCollapsibleState.Collapsed, this.token, this._children!, this._parent);
     } else {
       // Leaf node, return copy with collapsible state none ("prune")
-      return new LexNode(this.label, vscode.TreeItemCollapsibleState.None, this.token);
+      return new LexNode(this.label, vscode.TreeItemCollapsibleState.None, this.token, undefined, this._parent);
     }
   }
 }

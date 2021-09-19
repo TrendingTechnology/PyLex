@@ -6,17 +6,17 @@ import { Parser } from '../../parse';
 import { LexNode } from '../../lexNode';
 import { LineToken, Symbol } from '../../linetoken';
 
-var tests: { name: string, input: string[], output: LexNode[] | undefined }[] = [
+var tests: { name: string, input: string[], output: LexNode[] }[] = [
   {
     name: 'No Input',
     input: [ ],
-    output: undefined
+    output: [ ]
   },
 
   {
     name: 'Single line without construct',
     input: [ 'foo = "Yellow M&Ms make me angry >:(' ],
-    output: undefined
+    output: [ ]
   },
 
   {
@@ -35,7 +35,7 @@ var tests: { name: string, input: string[], output: LexNode[] | undefined }[] = 
       'bar = "Blue M&Ms make me happy <:)"',
       'reba = "A hard working gal"'
     ],
-    output: undefined
+    output: [ ]
   },
 
   {
@@ -206,7 +206,7 @@ var tests: { name: string, input: string[], output: LexNode[] | undefined }[] = 
       ),
         new LexNode('else',
         vscode.TreeItemCollapsibleState.None,
-        new LineToken(Symbol.else, 8, 0),
+        new LineToken(Symbol.else, 8, 0)
       )
     ]
   }
@@ -221,7 +221,37 @@ suite('Parser Test Suite', () => {
     let currTest = t; // without this, all test calls get the last test
     test(currTest.name, () => {
       let result: LexNode[] = new Parser(currTest.input.join('\n')).parse();
-      assert.deepStrictEqual(result, currTest.output);
+
+      let checkEq = (result: LexNode[], reference: LexNode[]) => {
+        if (reference.length === 0) {
+          assert.deepStrictEqual(result, reference);
+          return;
+        }
+
+        for (var i = 0; i < result.length, i < reference.length; i++) {
+          if (!reference[i].hasChildren()) {
+            // have to deparent this because I can't infinitely
+            // enumerate the required recursion...
+            assert.deepStrictEqual(
+              new LexNode(
+                result[i].label, result[i].collapsibleState, result[i].token, result[i].children(), undefined
+              ),
+              new LexNode(
+                reference[i].label, reference[i].collapsibleState, reference[i].token, reference[i].children(), undefined
+              ),
+            );
+          } else {
+            assert.strict(result[i].hasChildren());
+            checkEq(result[i].children()!, reference[i].children()!);
+          }
+        }
+
+        // Catches the case where reference is a proper subset
+        // of result
+        assert.strict(result.length === reference.length);
+      };
+
+      checkEq(result, currTest.output);
     });
   }
 });
