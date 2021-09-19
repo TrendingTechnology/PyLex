@@ -18,35 +18,35 @@ var rules: {pattern: RegExp, type: Symbol}[] = [
     type: Symbol.if
   },
   {
-    pattern: /^\s*elif\s(?<attr>[^:]+):\s*$/,
+    pattern: /^\s*elif\s+(?<attr>[^:]+):\s*$/,
     type: Symbol.elif
   },
   {
-    pattern: /^\s*else:/,
+    pattern: /^\s*else\s*:/,
     type: Symbol.else
   },
   {
-    pattern: /^\s*for\s(?<attr>[^:]+):\s*$/,
+    pattern: /^\s*for\s+(?<attr>[^:]+):\s*$/,
     type: Symbol.for
   },
   {
-    pattern: /^\s*while\s(?<attr>[^:]+):\s*$/,
+    pattern: /^\s*while\s+(?<attr>[^:]+):\s*$/,
     type: Symbol.while
   },
   {
-    pattern: /^\s*try:/,
+    pattern: /^\s*try\s*:/,
     type: Symbol.try
   },
   {
-    pattern: /^\s*except\s(?<attr>[^:]+):\s*$/,
+    pattern: /^\s*except(\s*(?<attr>[^:]+))?:\s*$/,
     type: Symbol.except
   },
   {
-    pattern: /^\s*finally:\s*$/,
+    pattern: /^\s*finally\s*:\s*$/,
     type: Symbol.finally
   },
   {
-    pattern: /^\s*with\s(?<attr>[^:]+):\s*$/,
+    pattern: /^\s*with\s+(?<attr>[^:]+):\s*$/,
     type: Symbol.with
   },
 ];
