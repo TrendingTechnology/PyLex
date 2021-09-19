@@ -70,22 +70,19 @@ export class Lexer {
       this.textLines = text.split('\r\n');
       if (this.textLines.length > 1) {
         // filter out whitespace only lines
-        this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
         this.next();
         return;
       }
 
       // Try ONLY linefeed (LF, Unix)
       this.textLines = text.split('\n');
-        if (this.textLines.length > 1) {
-        this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
+      if (this.textLines.length > 1) {
         this.next();
         return;
       }
 
       // Try ONLY carriage return (CF, other)
       this.textLines = text.split('\r');
-      this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
       this.next();
     }
   }
@@ -115,8 +112,15 @@ export class Lexer {
           return this.currToken();
         }
       }
+      // No rules matched
 
-      // No rules matched, save INDENT token
+      // Skip this line if it is whitespace or empty
+      if (/^\s*$/.test(line)) {
+        this.pos++;
+        continue;
+      }
+
+      // This is an INDENT token
       token = new LineToken(Symbol.indent, this.pos, indent);
       this._currToken = token;
       this.pos++;
@@ -130,7 +134,15 @@ export class Lexer {
 
   // Retracts current token n positions
   retract(n: number = 1): void {
-    this.pos -= (n + 1); // +1 required so that next() lands on correct token
+    let c = n + 1;
+    while (c > 0) {
+      this.pos--;
+      while (/^\s*$/.test(this.textLines[this.pos])) {
+        // Skip empty lines
+        this.pos--;
+      }
+      c--;
+    }
     this.next();
   }
 
@@ -138,16 +150,8 @@ export class Lexer {
   // a line. rounds up (so, 5 spaces is
   // 2 levels, 9 is 3, etc.)
   getIndent(text: string, tabstop: number) {
-    let indent: number = 0;
-    while (text.startsWith(' '.repeat(tabstop * (indent+1)))) {
-      indent++;
-    }
-
-    // Might miss incomplete tab (<4 space characters),
-    // be nice and don't break, even though you're wrong >:(
-    if (text[tabstop * indent]  === ' ') {
-      indent++;
-    }
+    let leadingSpace: number = text.length - text.trimLeft().length;
+    let indent: number = Math.ceil(leadingSpace/tabstop);
 
     return indent;
   }
