@@ -7,8 +7,8 @@ export class Parser {
   private lexer: Lexer;
   private root: Node; // Root of syntax tree
 
-  constructor (text: string | undefined) {
-    this.lexer = new Lexer(text);
+  constructor (text?: string, tabFmt?: {size?: number, hard?: boolean}) {
+    this.lexer = new Lexer(text, tabFmt);
     this.root = new Node("root", vscode.TreeItemCollapsibleState.None);
   }
 

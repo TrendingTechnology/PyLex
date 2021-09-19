@@ -5,7 +5,7 @@ import { LexNodeProvider } from './node';
 export function activate(context: vscode.ExtensionContext) {
 
 	// Register and setup provider
-	var provider = new LexNodeProvider(vscode.window.activeTextEditor?.document.getText());
+	var provider = new LexNodeProvider();
 	vscode.window.registerTreeDataProvider('lexNodes', provider);
 	vscode.commands.registerCommand('lexNodes.refreshEntry', () => {
 		provider.refresh();

@@ -56,7 +56,14 @@ export class Lexer {
   private pos: number = 0;
   private _currToken: LineToken = EOFTOKEN;
 
-  constructor(text: string | undefined) {
+  constructor(text?: string, private tabFmt: {size?: number, hard?: boolean} = {}) {
+    if (this.tabFmt.size === undefined) {
+      this.tabFmt.size = 4;
+    }
+
+    if (this.tabFmt.hard === undefined) {
+      this.tabFmt.hard = false;
+    }
     this.restart(text);
   }
 
@@ -92,14 +99,13 @@ export class Lexer {
     // Until a LineToken is found, or EOF
     while (this.pos < this.textLines.length) {
       let line: string = this.textLines[this.pos];
-      let indent: number = this.getIndent(line, 4);
+      let indent: number = this.getIndent(line, this.tabFmt);
       let token: LineToken;
       for (var r of rules) {
         // Does line match pattern?
         let match: RegExpMatchArray | null = line.match(r.pattern);
         if (match !== null) {
           // Yes...
-          // TODO FIXME match tabstop settings?
           if (match.groups !== undefined) {
             token = new LineToken(r.type, this.pos, indent, match.groups["attr"]);
           } else {
@@ -146,11 +152,19 @@ export class Lexer {
   }
 
   // Calculates indentation level for
-  // a line. rounds up (so, 5 spaces is
-  // 2 levels, 9 is 3, etc.)
-  getIndent(text: string, tabstop: number) {
+  // a line. if using soft tabs, indent
+  // level rounds up (so, tabSize+1 spaces is
+  // 2 levels, 2*tabSize+1 is 3, etc.)
+  getIndent(text: string, tabFmt: {size?: number, hard?: boolean}) {
     let leadingSpace: number = text.length - text.trimLeft().length;
-    let indent: number = Math.ceil(leadingSpace/tabstop);
+    let indent: number;
+    if (tabFmt.hard) {
+      // used tabs
+      indent = leadingSpace;
+    } else {
+      // use spaces
+      indent = Math.ceil(leadingSpace/tabFmt.size!);
+    }
 
     return indent;
   }

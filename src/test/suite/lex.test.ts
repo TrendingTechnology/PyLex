@@ -30,14 +30,21 @@ suite('Lexer Test Suite', () => {
     assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.indent, 0, 0));
   });
 
-  test('getIndent() accuracy', () => {
+  test('getIndent() accuracy, spaces', () => {
     for (var i = 0; i < 100; i++) {
       let l: Lexer = new Lexer('    '.repeat(i) + 'foobar');
       assert.strictEqual(l.currToken().indentLevel, i);
     }
   });
 
-  test('getIndent() accuracy with incomplete tab', () => {
+  test('getIndent() accuracy, tabs', () => {
+    for (var i = 0; i < 100; i++) {
+      let l: Lexer = new Lexer('\t'.repeat(i) + 'foobar', {hard: true});
+      assert.strictEqual(l.currToken().indentLevel, i);
+    }
+  });
+
+  test('getIndent() accuracy, spaces with incomplete tab', () => {
     for (var i = 0; i < 100; i++) {
       for (var j = 1; j <= 3; j++) {
         let l: Lexer = new Lexer('    '.repeat(i) + ' '.repeat(j) + 'foobar');

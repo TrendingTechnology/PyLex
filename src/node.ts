@@ -11,38 +11,39 @@ export class LexNodeProvider implements vscode.TreeDataProvider<Node> {
   private document: Node; // All top-level constructs (indent 0) will be children of this object
 
   constructor (private text?: string) {
-    if (this.text === undefined ) {
-      // Use current active editor by default
-      this.text = vscode.window.activeTextEditor?.document.getText();
-    }
-
-    if (this.text !== undefined) {
-      this.reset(this.text);
-    } else {
-      vscode.window.showErrorMessage('No text provided and no active text editor');
-    }
+    this.refresh(this.text);
   }
 
   // Change the text to parse, then reset and re-parse
-  private reset(text: string, documentLabel: string = "root") {
-    this.parser = new Parser(text);
+  private reset(text: string, tabFmt?: { size?: number, hard?: boolean }, documentLabel: string = "root") {
+    this.parser = new Parser(text, tabFmt);
     this.document = new Node(documentLabel, vscode.TreeItemCollapsibleState.None);
     this.document.adopt(this.parser.parse()); // Construct parse tree with document as root
   }
 
-  refresh(text?: string): void {
-    if (text === undefined) {
-      // Use current editor if no text is provided
-      this.text = vscode.window.activeTextEditor?.document.getText();
-    } else {
-      this.text = text;
-    }
+  refresh(text?: string, tabFmt?: { size?: any, hard?: any}): void {
+    if (text === undefined ) {
+      if (vscode.window.activeTextEditor === undefined) {
+        vscode.window.showErrorMessage('No text provided and no active text editor');
+      } else {
+        // Use current active editor by default
+        text = vscode.window.activeTextEditor.document.getText();
 
-    if (this.text !== undefined ) {
-      this.reset(this.text);
-      this._onDidChangeTreeData.fire();
-    } else {
-      vscode.window.showErrorMessage('No text provided and no active text editor');
+        if (tabFmt === undefined) {
+          // Get tab settings
+          //
+          // Types are 'any' because tabSize and insertSpaces will
+          // always return the right type when getting options from
+          // an editor (size: number, hard: boolean)
+          tabFmt = {
+            size: vscode.window.activeTextEditor.options.tabSize,
+            hard: !vscode.window.activeTextEditor.options.insertSpaces
+          };
+        }
+
+        this.reset(text, tabFmt);
+        this._onDidChangeTreeData.fire();
+      }
     }
   }
 
