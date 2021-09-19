@@ -48,4 +48,31 @@ export class Parser {
     }
     return ret;
   }
+
+  // Returns an array of LexNodes, representing the path
+  // between the LexNode that contains the specified line number
+  // and the root of the tree.
+  context(lineNumber: number): LexNode[] {
+    if (!this.root.hasChildren()) {
+      return [];
+    }
+
+    let find = (root: LexNode): LexNode | undefined => {
+      let prevChild: LexNode;
+      for (var child of root.children()!) {
+        if (lineNumber < child.token!.linenr) {
+          if (prevChild!.hasChildren()) {
+            return find(prevChild!);
+          } else {
+            return prevChild!;
+          }
+        } else {
+          prevChild = child;
+        }
+      }
+    };
+
+    let target = find(this.root);
+    return target!.rootPath();
+  }
 }

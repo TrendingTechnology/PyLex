@@ -1,3 +1,4 @@
+import { notDeepStrictEqual } from 'assert';
 import * as vscode from 'vscode';
 
 import { LineToken } from './linetoken';
@@ -9,7 +10,7 @@ export class LexNode extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly token?: LineToken,
     private _children?: LexNode[] | undefined,
-    private _parent?: LexNode | undefined | null
+    private _parent?: LexNode | null
   ) {
     super(label, collapsibleState);
     this.tooltip = this.label;
@@ -74,5 +75,16 @@ export class LexNode extends vscode.TreeItem {
       // Leaf node, return copy with collapsible state none ("prune")
       return new LexNode(this.label, vscode.TreeItemCollapsibleState.None, this.token, undefined, this._parent);
     }
+  }
+
+  // Return an array of Nodes traversing from
+  // this node to the root
+  rootPath(): LexNode[] {
+    if (this._parent === null) {
+      return [new LexNode(this.label, this.collapsibleState, this.token, this._children, this._parent)];
+    } else {
+      return [new LexNode(this.label, this.collapsibleState, this.token, this._children, this._parent)].concat(this._parent!.rootPath());
+    }
+
   }
 }
