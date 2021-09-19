@@ -69,7 +69,6 @@ export class Lexer {
       // Try carriage return AND linefeed (CRLF, Windows)
       this.textLines = text.split('\r\n');
       if (this.textLines.length > 1) {
-        // filter out whitespace only lines
         this.next();
         return;
       }
@@ -114,8 +113,8 @@ export class Lexer {
       }
       // No rules matched
 
-      // Skip this line if it is whitespace or empty
-      if (/^\s*$/.test(line)) {
+      // Skip this line if it is whitespace, comment, or empty
+      if (/^\s*#?\s*$/.test(line)) {
         this.pos++;
         continue;
       }
