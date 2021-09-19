@@ -102,7 +102,7 @@ export class Node extends vscode.TreeItem {
     } else {
       // Yes...
       if (Array.isArray(child)) {
-        this._children.concat(child);
+        this._children = this._children.concat(child);
       } else {
         this._children.push(child);
       }
