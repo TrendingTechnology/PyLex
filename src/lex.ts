@@ -65,19 +65,23 @@ export class Lexer {
             // Try carriage return AND linefeed (CRLF, Windows)
             this.textLines = text.split('\r\n');
             if (this.textLines.length > 1) {
+                // filter out whitespace only lines
+                this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
                 this.next();
                 return;
             }
 
             // Try ONLY linefeed (LF, Unix)
-            this.textLines = text?.split('\n');
+            this.textLines = text.split('\n');
             if (this.textLines.length > 1) {
+                this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
                 this.next();
                 return;
             }
 
             // Try ONLY carriage return (CF, other)
-            this.textLines = text?.split('\r');
+            this.textLines = text.split('\r');
+            this.textLines = this.textLines.filter(line => !/^\s*$/.test(line));
             this.next();
         }
     }
@@ -107,16 +111,8 @@ export class Lexer {
                     return this.currToken();
                 }
             }
-            // No rules matched
 
-            // Is this an empty line?
-            if (/^\s*$/.test(line)) {
-                // Yes...
-                this.pos++;
-                continue;
-            }
-
-            // No, we need this, too
+            // No rules matched, save INDENT token
             token = new LineToken(Symbol.indent, this.pos, indent);
             this._currToken = token;
             this.pos++;
@@ -130,15 +126,7 @@ export class Lexer {
 
     // Retracts current token n positions
     retract(n: number = 1): void {
-        let c = n + 1;
-        while (c > 0) {
-            this.pos--;
-            while (/^\s*$/.test(this.textLines[this.pos])) {
-                // Skip empty lines
-                this.pos--;
-            }
-            c--;
-        }
+        this.pos -= (n + 1); // +1 required so that next() lands on correct token
         this.next();
     }
 
