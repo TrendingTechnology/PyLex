@@ -68,7 +68,7 @@ export class Lexer {
   }
 
   // Restart lexer with new text
-  restart(text: string | undefined): void {
+  restart(text?: string): void {
     this.textLines = [];
     this.pos = 0;
     this._currToken = EOFTOKEN;
@@ -134,11 +134,28 @@ export class Lexer {
 
     // Didn't return, must be EOF
     this._currToken = EOFTOKEN;
+    this.pos++;
     return this.currToken();
   }
 
   // Retracts current token n positions
   retract(n: number = 1): void {
+    if (this.pos - 1 - n < 0) {
+      // -1 because this.pos is currently on the next token
+      throw new RangeError('Cannot retract past start');
+    }
+
+    if (n <= 0) {
+      throw new RangeError('Retract distance must be positive');
+    }
+
+    if (this.pos - n === 0) {
+      // just restart
+      this.pos = 0;
+      this.next();
+      return;
+    }
+
     let c = n + 1;
     while (c > 0) {
       this.pos--;
