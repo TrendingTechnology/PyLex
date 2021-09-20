@@ -1,5 +1,19 @@
 # PyLex
-Expose a TreeNodeProvider for the high-level constructs of a Python program.
+Implements a Parser class that can parse Python files in VS code and return a
+tree representing high-level constructs (class/function definition, try/catch,
+etc.). Once a Parser object has been initialized, calling
+`Parser.context(lineNumber: number)` will return a path of nodes from the leaf
+node containing the specified line number to the root. This can be thought of
+as
+
+```
+  "this" inside "that" inside ... inside root
+```
+
+where root is the the root of the syntax tree.
+
+This repository also implements a TreeNodeProvider to allow visualization of
+the LexNode tree.
 
 ## Dependencies
 - [Git](https://git-scm.com/)
