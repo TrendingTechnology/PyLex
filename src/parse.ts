@@ -7,13 +7,31 @@ export class Parser {
   private lexer: Lexer;
   private root: LexNode; // Root of syntax tree
 
-  constructor (text?: string, tabFmt?: {size?: number, hard?: boolean}) {
-    this.lexer = new Lexer(text, tabFmt);
-    this.root = new LexNode("root", vscode.TreeItemCollapsibleState.None, undefined, undefined, null);
-  }
+  constructor (private text?: string, private tabFmt?: {size?: number, hard?: boolean}) {}
 
   // Public facing _parse, always starts from the bottom
-  parse(): LexNode[] {
+  parse(text?: string, tabFmt?: {size?: number, hard?: boolean}): LexNode[] {
+    if (text === undefined) {
+      // default to this.text
+      // this might still be undefined
+      text = this.text;
+    } else {
+      // save text
+      this.text = text;
+    }
+
+    if (tabFmt === undefined) {
+      // default to this.tabFmt
+      // this might still be undefined
+      tabFmt = this.tabFmt;
+    } else {
+      // save tabFmt
+      this.tabFmt = tabFmt;
+    }
+
+    this.lexer = new Lexer(this.text, this.tabFmt);
+    this.root = new LexNode("root", vscode.TreeItemCollapsibleState.None, undefined, undefined, null);
+
     this.root.adopt(this._parse(0, this.root));
     this.root = this.root.prune();
 

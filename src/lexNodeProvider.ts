@@ -11,14 +11,14 @@ export class LexNodeProvider implements vscode.TreeDataProvider<LexNode> {
   private document: LexNode; // All top-level constructs (indent 0) will be children of this object
 
   constructor (private text?: string) {
+    this.parser = new Parser();
     this.refresh(this.text);
   }
 
   // Change the text to parse, then reset and re-parse
   private reset(text: string, tabFmt?: { size?: number, hard?: boolean }, documentLabel: string = "root") {
-    this.parser = new Parser(text, tabFmt);
     this.document = new LexNode(documentLabel, vscode.TreeItemCollapsibleState.None);
-    this.document.adopt(this.parser.parse()); // Construct parse tree with document as root
+    this.document.adopt(this.parser.parse(text, tabFmt)); // Construct parse tree with document as root
   }
 
   refresh(text?: string, tabFmt?: { size?: any, hard?: any}): void {
