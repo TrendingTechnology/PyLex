@@ -120,7 +120,7 @@ export class Lexer {
       // No rules matched
 
       // Skip this line if it is whitespace, comment, or empty
-      if (/^\s*#?\s*$/.test(line)) {
+      if (/^\s*(#.*)?$/.test(line)) {
         this.pos++;
         continue;
       }
@@ -159,7 +159,7 @@ export class Lexer {
     let c = n + 1;
     while (c > 0) {
       this.pos--;
-      while (/^\s*$/.test(this.textLines[this.pos])) {
+      while (/^\s*(#.*)?$/.test(this.textLines[this.pos])) {
         // Skip empty lines
         this.pos--;
       }

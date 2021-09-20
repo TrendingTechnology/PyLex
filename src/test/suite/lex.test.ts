@@ -132,6 +132,90 @@ suite('Lexer Test Suite', () => {
 
     let currEnding = lineEnding;
     suite(toStr(currEnding) + ' Tests', () => {
+      test('next() ignores empty lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          '',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.indent, 2, 1));
+      });
+
+      test('retract() ignores empty lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          '',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        l.retract();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
+      });
+
+      test('next() ignores whitespace lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          ' \t \t   ',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.indent, 2, 1));
+      });
+
+      test('retract() ignores whitespace lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          ' \t . \t',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        l.retract();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
+      });
+
+      test('next() ignores comment lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          ' \t # I hate testing \t',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.indent, 2, 1));
+      });
+
+      test('retract() ignores comment lines', () => {
+        let lines: string[] = [
+          'if wurst_available():',
+          ' \t . \t',
+          '    eat_wurst()'
+        ];
+        let l: Lexer = new Lexer(lines.join(currEnding));
+
+        l.next();
+
+        l.retract();
+
+        assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
+      });
+
       test('retract() out of range', () => {
         let l: Lexer = new Lexer('class Platypus:');
         try {
@@ -142,7 +226,7 @@ suite('Lexer Test Suite', () => {
       });
 
       test('retract() validate argument', () => {
-        let l: Lexer = new Lexer('if test1:\r    if test2:');
+        let l: Lexer = new Lexer('if test1:' + currEnding + '    if test2:');
 
         // Negative
         try {
