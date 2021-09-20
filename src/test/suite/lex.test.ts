@@ -176,13 +176,17 @@ suite('Lexer Test Suite', () => {
       test('retract() ignores whitespace lines', () => {
         let lines: string[] = [
           'if wurst_available():',
-          ' \t . \t',
+          ' \t  \t   ',
           '    eat_wurst()'
         ];
         let l: Lexer = new Lexer(lines.join(currEnding));
 
-        l.next();
+        // Advance to end of input
+        // Eliminates dependence on next()
+        // skipping whitespace
+        do {} while (l.next() !== EOFTOKEN);
 
+        l.retract(); // retract past EOFTOKEn
         l.retract();
 
         assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
@@ -204,13 +208,17 @@ suite('Lexer Test Suite', () => {
       test('retract() ignores comment lines', () => {
         let lines: string[] = [
           'if wurst_available():',
-          ' \t . \t',
+          ' \t # \t',
           '    eat_wurst()'
         ];
         let l: Lexer = new Lexer(lines.join(currEnding));
 
-        l.next();
+        // Advance to end of input
+        // Eliminates dependence on next()
+        // skipping comment
+        do {} while (l.next() !== EOFTOKEN);
 
+        l.retract(); // retract past EOFTOKEn
         l.retract();
 
         assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
