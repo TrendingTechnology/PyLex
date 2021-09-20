@@ -226,29 +226,17 @@ suite('Lexer Test Suite', () => {
 
       test('retract() out of range', () => {
         let l: Lexer = new Lexer('class Platypus:');
-        try {
-          l.retract();
-        } catch (err) {
-          assert.strict(err instanceof RangeError);
-        }
+        assert.throws(() => l.retract());
       });
 
       test('retract() validate argument', () => {
         let l: Lexer = new Lexer('if test1:' + currEnding + '    if test2:');
 
         // Negative
-        try {
-          l.retract(-1);
-        } catch (err) {
-          assert.strict(err instanceof RangeError);
-        }
+        assert.throws(() => l.retract(-1));
 
         // Zero, it doesn't make sense to retract 0 :P
-        try {
-          l.retract(0);
-        } catch (err) {
-          assert.strict(err instanceof RangeError);
-        }
+        assert.throws(() => l.retract(0));
 
       });
 
