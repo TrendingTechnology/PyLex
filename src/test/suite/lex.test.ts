@@ -224,13 +224,19 @@ suite('Lexer Test Suite', () => {
         assert.deepStrictEqual(l.currToken(), new LineToken(Symbol.if, 0, 0, 'wurst_available()'));
       });
 
+      test('next() out of range', () => {
+        let l: Lexer = new Lexer('foo = zaboomafoo');
+        l.next();
+        assert.throws(() => l.next());
+      });
+
       test('retract() out of range', () => {
-        let l: Lexer = new Lexer('class Platypus:');
+        let l: Lexer = new Lexer('next_token = lexer.next()');
         assert.throws(() => l.retract());
       });
 
       test('retract() validate argument', () => {
-        let l: Lexer = new Lexer('if test1:' + currEnding + '    if test2:');
+        let l: Lexer = new Lexer();
 
         // Negative
         assert.throws(() => l.retract(-1));

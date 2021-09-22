@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 import { EOFTOKEN, LineToken, Symbol } from './linetoken';
 import { Lexer } from './lex';
 import { LexNode } from './lexNode';
+import { timeStamp } from 'console';
 
 export class Parser {
   private lexer: Lexer;
+  private currToken: LineToken;
   private root: LexNode; // Root of syntax tree
 
   constructor (private text?: string, private tabFmt?: {size?: number, hard?: boolean}) {}
@@ -47,22 +49,26 @@ export class Parser {
   private _parse(indentLevel: number = 0, parent?: LexNode): LexNode[] {
     let ret: LexNode[] = [];
 
-    let token: LineToken = this.lexer.currToken();
-    while (token !== EOFTOKEN) {
-      if (token.indentLevel < indentLevel) {
-        // 2 because after returning token will be advanced again
-        this.lexer.retract(2);
+    this.currToken = this.lexer.currToken();
+    while (this.lexer.currToken() !== EOFTOKEN) {
+      if (this.lexer.currToken().indentLevel < indentLevel) {
+        // End of indented block
+        // Need to re-read this token
+        this.lexer.retract();
         return ret;
       }
 
-      if (token.type !== Symbol.indent) {
-        // parse new block
-        let blockRoot: LexNode = new LexNode(token.type + (token.attr === undefined ? "" : " " + token.attr), vscode.TreeItemCollapsibleState.Collapsed, token, undefined, parent);
-        token = this.lexer.next();
-        blockRoot.adopt(this._parse(indentLevel+1, blockRoot)); // recursively parse all descendants
-        ret.push(blockRoot);
+      if (this.lexer.currToken().type === Symbol.indent) {
+        this.lexer.next();
+        continue;
       }
-      token = this.lexer.next();
+
+      // parse new block
+      let blockRoot: LexNode = new LexNode(this.lexer.currToken().type + (this.lexer.currToken().attr === undefined ? "" : " " + this.lexer.currToken().attr),
+                                           vscode.TreeItemCollapsibleState.Collapsed, this.lexer.currToken(), undefined, parent);
+      this.lexer.next();
+      blockRoot.adopt(this._parse(indentLevel+1, blockRoot)); // recursively parse all descendants
+      ret.push(blockRoot);
     }
     return ret;
   }

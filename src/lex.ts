@@ -96,6 +96,10 @@ export class Lexer {
   currToken(): LineToken { return this._currToken; }
 
   next(): LineToken {
+    if (this._currToken === EOFTOKEN && this.pos > this.textLines.length) {
+      throw new Error('Cannot advance past end');
+    }
+
     // Until a LineToken is found, or EOF
     while (this.pos < this.textLines.length) {
       let line: string = this.textLines[this.pos];
@@ -139,7 +143,7 @@ export class Lexer {
   }
 
   // Retracts current token n positions
-  retract(n: number = 1): void {
+  retract(n: number = 1): LineToken {
     if (this.pos - 1 - n < 0) {
       // -1 because this.pos is currently on the next token
       throw new RangeError('Cannot retract past start');
@@ -152,8 +156,7 @@ export class Lexer {
     if (this.pos - n === 0) {
       // just restart
       this.pos = 0;
-      this.next();
-      return;
+      return this.next();
     }
 
     let c = n + 1;
@@ -165,7 +168,7 @@ export class Lexer {
       }
       c--;
     }
-    this.next();
+    return this.next();
   }
 
   // Calculates indentation level for
