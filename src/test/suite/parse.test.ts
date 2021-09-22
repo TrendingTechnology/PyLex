@@ -6,6 +6,16 @@ import { Parser } from '../../parse';
 import { LexNode } from '../../lexNode';
 import { LineToken, Symbol } from '../../linetoken';
 
+// Recursively link children and parents
+// This is needed to properly enumerate the
+// output
+function parentify(nodes: LexNode[], parent: LexNode): LexNode[] {
+  nodes.forEach((node, index, nodes) => {
+    let newChildren: LexNode[];
+  });
+return nodes;
+}
+
 var tests: { name: string, input: string[], output: LexNode[] }[] = [
   {
     name: 'No Input',
@@ -220,7 +230,7 @@ suite('Parser Test Suite', () => {
   for (var t of tests) {
     let currTest = t; // without this, all test calls get the last test
     test(currTest.name, () => {
-      let result: LexNode[] = new Parser(currTest.input.join('\n')).parse();
+      let result: LexNode = new Parser(currTest.input.join('\n')).parse();
 
       let checkEq = (result: LexNode[], reference: LexNode[]) => {
         if (reference.length === 0) {
@@ -230,6 +240,7 @@ suite('Parser Test Suite', () => {
 
         for (var i = 0; i < result.length, i < reference.length; i++) {
           if (!reference[i].hasChildren()) {
+            // TODO FIXME: somehow "parentify" these nodes
             // have to deparent this because I can't infinitely
             // enumerate the required recursion...
             assert.deepStrictEqual(
@@ -251,7 +262,13 @@ suite('Parser Test Suite', () => {
         assert.strict(result.length === reference.length);
       };
 
-      checkEq(result, currTest.output);
+      if (result.hasChildren()) {
+        // check children sans parent
+        checkEq(result.children()!, currTest.output);
+      } else {
+        // check that output is supposed to be nothing
+        assert.deepStrictEqual([], currTest.output);
+      }
     });
   }
 });

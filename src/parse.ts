@@ -12,7 +12,7 @@ export class Parser {
   constructor (private text?: string, private tabFmt?: {size?: number, hard?: boolean}) {}
 
   // Public facing _parse, always starts from the bottom
-  parse(text?: string, tabFmt?: {size?: number, hard?: boolean}): LexNode[] {
+  parse(text?: string, tabFmt?: {size?: number, hard?: boolean}): LexNode {
     if (text === undefined) {
       // default to this.text
       // this might still be undefined
@@ -35,13 +35,7 @@ export class Parser {
     this.root = new LexNode("root", vscode.TreeItemCollapsibleState.None, undefined, undefined, null);
 
     this.root.adopt(this._parse(0, this.root));
-    this.root = this.root.prune();
-
-    if (this.root.children() === undefined ) {
-      return [];
-    } else {
-      return this.root.children()!;
-    }
+    return this.root.prune();
   }
 
   // Returns the next indented block
