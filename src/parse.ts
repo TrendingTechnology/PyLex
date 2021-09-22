@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { EOFTOKEN, LineToken, Symbol } from './linetoken';
 import { Lexer } from './lex';
 import { LexNode } from './lexNode';
-import { timeStamp } from 'console';
 
 export class Parser {
   private lexer: Lexer;
