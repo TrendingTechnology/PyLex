@@ -1,3 +1,4 @@
+import { notDeepStrictEqual } from 'assert';
 import * as vscode from 'vscode';
 
 import { LexNode } from './lexNode';
@@ -17,8 +18,21 @@ export class LexNodeProvider implements vscode.TreeDataProvider<LexNode> {
 
   // Change the text to parse, then reset and re-parse
   private reset(text: string, tabFmt?: { size?: number, hard?: boolean }, documentLabel: string = "root") {
-    this.document = new LexNode(documentLabel, vscode.TreeItemCollapsibleState.None);
-    this.document.adopt(this.parser.parse(text, tabFmt)); // Construct parse tree with document as root
+    this.document = this.parser.parse(text, tabFmt); // Construct parse tree with document as root
+
+    let expand = (node: LexNode): LexNode => {
+      let newChildren: LexNode[] | undefined;
+      if (node.hasChildren()) {
+        // Expand all children
+        newChildren = node.children()!.map((node) => {
+          return expand(node);
+        });
+        return new LexNode(node.label, vscode.TreeItemCollapsibleState.Expanded, node.token, newChildren, node.parent());
+      } else {
+        return node;
+      }
+    };
+    this.document = expand(this.document);
   }
 
   refresh(text?: string, tabFmt?: { size?: any, hard?: any}): void {
@@ -44,6 +58,7 @@ export class LexNodeProvider implements vscode.TreeDataProvider<LexNode> {
       }
     }
 
+    this.text = text;
     this.reset(text, tabFmt);
     this._onDidChangeTreeData.fire();
   }
@@ -59,6 +74,6 @@ export class LexNodeProvider implements vscode.TreeDataProvider<LexNode> {
       return Promise.resolve(node.children());
     }
 
-    return Promise.resolve(this.document.children());
+    return Promise.resolve([this.document]);
   }
 }
