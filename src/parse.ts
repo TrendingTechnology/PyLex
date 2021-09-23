@@ -5,7 +5,7 @@ import { LexNode } from './lexNode';
 
 export class Parser {
   private lexer: Lexer;
-  private currToken: LineToken;
+  private currIndent: number;
   private root: LexNode; // Root of syntax tree
 
   constructor (private text?: string, private tabFmt?: {size?: number, hard?: boolean}) {}
@@ -33,21 +33,25 @@ export class Parser {
     this.lexer = new Lexer(this.text, this.tabFmt);
     this.root = new LexNode("root", vscode.TreeItemCollapsibleState.None, undefined, undefined, null);
 
-    this.root.adopt(this._parse(0, this.root));
+    this.currIndent = 0;
+    this.root.adopt(this._parse(this.root));
     return this.root.prune();
   }
 
   // Returns the next indented block
   // as a tree of significant tokens
-  private _parse(indentLevel: number = 0, parent?: LexNode): LexNode[] {
+  private _parse(parent?: LexNode): LexNode[] {
     let ret: LexNode[] = [];
 
-    this.currToken = this.lexer.currToken();
     while (this.lexer.currToken() !== EOFTOKEN) {
-      if (this.lexer.currToken().indentLevel < indentLevel) {
+      if (this.lexer.currToken().indentLevel < this.currIndent) {
         // End of indented block
-        // Need to re-read this token
-        this.lexer.retract();
+        //
+        // Unravel recursion until indentation is equal
+        this.currIndent--;
+        if (this.currIndent > this.lexer.currToken().indentLevel) {
+          this.lexer.retract(); // re-read this token, need to to higher in tree
+        }
         return ret;
       }
 
@@ -60,7 +64,8 @@ export class Parser {
       let blockRoot: LexNode = new LexNode(this.lexer.currToken().type + (this.lexer.currToken().attr === undefined ? "" : " " + this.lexer.currToken().attr),
                                            vscode.TreeItemCollapsibleState.Collapsed, this.lexer.currToken(), undefined, parent);
       this.lexer.next();
-      blockRoot.adopt(this._parse(indentLevel+1, blockRoot)); // recursively parse all descendants
+      this.currIndent++;
+      blockRoot.adopt(this._parse(blockRoot)); // recursively parse all descendants
       ret.push(blockRoot);
     }
     return ret;
